@@ -1,7 +1,10 @@
 #!/bin/bash
 # git submodule add https://github.com/grpc/grpc third_party/grpc 
+# git submodule add -b release/8.6 https://github.com/NVIDIA/TensorRT.git third_party/TensorRT
 
-
+# export TRT_OSSPATH=/home/tars/projects/code/inference_grpc/third_party/TensorRT
+# export TRT_LIBPATH=/home/tars/projects/code/inference_grpc/third_party/TensorRT-8.6.1.6/lib
+# mkdir -p build $$ cd build && cmake .. -DTRT_LIB_DIR=$TRT_LIBPATH -DTRT_OUT_DIR=`pwd`/out
 
 export MY_INSTALL_DIR=`pwd`/third_party/grpc_lib
 mkdir -p $MY_INSTALL_DIR

@@ -32,4 +32,4 @@
 *.app
 
 /build
-/third_party/*_lib
+/third_party

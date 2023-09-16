@@ -1,3 +1,7 @@
 [submodule "third_party/grpc"]
 	path = third_party/grpc
 	url = https://github.com/grpc/grpc
+[submodule "third_party/TensorRT"]
+	path = third_party/TensorRT
+	url = https://github.com/NVIDIA/TensorRT.git
+	branch = release/8.6
