@@ -5,9 +5,9 @@ cmake_minimum_required(VERSION 3.8)
 project(GrpcTest C CXX)
 
 # 设置C++标准
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # 在 CMake 中查找 gRPC 库和 Protobuf 库：
 find_package(Protobuf CONFIG REQUIRED)
