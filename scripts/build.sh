@@ -1,4 +1,7 @@
 #!/bin/bash
+# git submodule add https://github.com/grpc/grpc third_party/grpc 
+
+
 
 export MY_INSTALL_DIR=`pwd`/third_party/grpc_lib
 mkdir -p $MY_INSTALL_DIR
