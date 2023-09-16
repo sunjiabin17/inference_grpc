@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.8)
 
 project(GrpcTest C CXX)
 
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/third_party/grpc_lib")
 # 设置C++标准
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

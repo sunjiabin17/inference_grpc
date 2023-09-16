@@ -18,14 +18,14 @@ using grpc::ServerBuilder;
 using grpc::ServerContext;
 using grpc::Status;
 
-using my_grpc_service::HelloRequest;
-using my_grpc_service::HelloResponse;
-using my_grpc_service::HelloWorld;
+using my_grpc_service::Request;
+using my_grpc_service::Response;
+using my_grpc_service::MyGrpcService;
 
 // Logic and data behind the server's behavior.
-class HelloWorldServiceImpl final : public HelloWorld::Service {
-    Status SayHello(ServerContext* context, const HelloRequest* request,
-                    HelloResponse* response) override {
+class HelloWorldServiceImpl final : public MyGrpcService::Service {
+    Status GetResult(ServerContext* context, const Request* request,
+                    Response* response) override {
         std::string prefix("Hello ");
         // get current time, format it as HH:MM:SS
         std::time_t t = std::time(nullptr);

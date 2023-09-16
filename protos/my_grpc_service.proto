@@ -8,21 +8,16 @@ syntax = "proto3";
 package my_grpc_service;
 
 // The greeting service definition.
-service HelloWorld {
-  // Sends a greeting
-  rpc SayHello (HelloRequest) returns (HelloResponse) {}
-//   // Sends another greeting
-//   rpc SayHelloAgain (HelloRequest) returns (HelloResponse) {}
-  
-//   rpc SayHelloStreamReply (HelloRequest) returns (stream HelloResponse) {}
+service MyGrpcService {
+  rpc GetResult (Request) returns (Response) {}
 }
 
 // The request message containing the user's name.
-message HelloRequest {
+message Request {
   string name = 1;
 }
 
 // The response message containing the greetings
-message HelloResponse {
+message Response {
   string message = 1;
 }
