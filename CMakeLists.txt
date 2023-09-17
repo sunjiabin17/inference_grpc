@@ -10,7 +10,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# 在 CMake 中查找 gRPC 库和 Protobuf 库：
+set(CMAKE_BUILD_TYPE "Debug")
+
+# 在 CMake 中查找 gRPC 库和 Protobuf 库
 find_package(Protobuf CONFIG REQUIRED)
 MESSAGE(STATUS "Using protobuf ${Protobuf_VERSION}")
 
@@ -18,7 +20,7 @@ find_package(gRPC CONFIG REQUIRED)
 MESSAGE(STATUS "Using gRPC ${gRPC_VERSION}")
 
 
-# 包含 gRPC 和 Protobuf 的头文件：
+# 包含 gRPC 和 Protobuf 的头文件
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 include_directories(${_GRPC_GRPCPP_INCLUDE_DIR})
 
@@ -26,13 +28,13 @@ include_directories(${_GRPC_GRPCPP_INCLUDE_DIR})
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-# 查找全部.cc 文件：
+# 查找全部.cc 文件
 # file(GLOB_RECURSE SRCS src/*.cc)
 set(GRPC_SERVER src/grpc_server.cc)
 set(GRPC_CLIENT src/grpc_client.cc)
 
 
-# 添加 gRPC 插件的库：
+# 添加 gRPC 插件的库
 # get_target_property(_GRPC_CPP_PLUGIN_EXECUTABLE gRPC::grpc_cpp_plugin IMPORTED_LOCATION_RELEASE)
 set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
 set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
@@ -59,7 +61,7 @@ add_custom_command(
     DEPENDS "${MY_PROTO}"
 )
 
-# 添加 gRPC 和 Protobuf 的库：
+# 添加 gRPC 和 Protobuf 的库
 add_executable(my_grpc_server ${GRPC_SERVER})
 add_executable(my_grpc_client ${GRPC_CLIENT})
 
@@ -83,5 +85,5 @@ add_custom_target(proto DEPENDS ${_PROTO_SRCS} ${_PROTO_HDRS} ${_GRPC_SRCS} ${_G
 add_library(argparse include/argparse/argparse.hpp)
 # 对应的lib都是由模板类头文件.hpp生成的，而其中并没有.cpp或者.c文件。所以需要设置一下链接器的语言为C++，否则会报错
 set_target_properties(argparse PROPERTIES LINKER_LANGUAGE CXX)
-add_executable(argparser_test src/argparser_test.cc)
+add_executable(argparser_test test/argparser_test.cc)
 target_link_libraries(argparser_test argparse)
