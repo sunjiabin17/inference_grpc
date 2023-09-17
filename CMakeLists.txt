@@ -82,8 +82,8 @@ target_link_libraries(my_grpc_client gRPC::grpc++ gRPC::grpc++_reflection protob
 # 只编译生成proto文件
 add_custom_target(proto DEPENDS ${_PROTO_SRCS} ${_PROTO_HDRS} ${_GRPC_SRCS} ${_GRPC_HDRS})
 
-add_library(argparse include/argparse/argparse.hpp)
+add_library(cxxopts include/cxxopts.hpp)
 # 对应的lib都是由模板类头文件.hpp生成的，而其中并没有.cpp或者.c文件。所以需要设置一下链接器的语言为C++，否则会报错
-set_target_properties(argparse PROPERTIES LINKER_LANGUAGE CXX)
-add_executable(argparser_test test/argparser_test.cc)
-target_link_libraries(argparser_test argparse)
+set_target_properties(cxxopts PROPERTIES LINKER_LANGUAGE CXX)
+add_executable(cxxopts_test test/cxxopts_test.cc)
+target_link_libraries(cxxopts_test cxxopts)
