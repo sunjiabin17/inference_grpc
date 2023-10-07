@@ -3,24 +3,24 @@
 
 #include <grpcpp/grpcpp.h>
 
-// #include "my_grpc_service.pb.h"
-#include "my_grpc_service.grpc.pb.h"
+// #include "grpc_infer_service.pb.h"
+#include "grpc_infer_service.grpc.pb.h"
 
 using grpc::Channel;
 using grpc::ClientContext;
 using grpc::Status;
-using my_grpc_service::Request;
-using my_grpc_service::Response;
-using my_grpc_service::MyGrpcService;
+using grpc_infer_service::Request;
+using grpc_infer_service::Response;
+using grpc_infer_service::InferenceService;
 
 class HelloWorldClient {
 public:
     HelloWorldClient(std::shared_ptr<Channel> channel)
-        : stub_(MyGrpcService::NewStub(channel)) {}
+        : stub_(InferenceService::NewStub(channel)) {}
 
     // Assembles the client's payload, sends it and presents the response back
     // from the server.
-    std::string GetResult(const std::string& user) {
+    std::string GetImgClsResult(const std::string& user) {
         // Data we are sending to the server.
         Request request;
         request.set_name(user);
@@ -33,7 +33,7 @@ public:
         ClientContext context;
 
         // The actual RPC.
-        Status status = stub_->GetResult(&context, request, &response);
+        Status status = stub_->GetImgClsResult(&context, request, &response);
 
         // Act upon its status.
         if (status.ok()) {
@@ -47,7 +47,7 @@ public:
     }
 
 private:
-    std::unique_ptr<MyGrpcService::Stub> stub_;
+    std::unique_ptr<InferenceService::Stub> stub_;
 };
 
 int main(int argc, char** argv) {
@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
         grpc::CreateChannel(target_str, grpc::InsecureChannelCredentials()));
     
     std::string user("world");
-    std::string response = client.GetResult(user);
+    std::string response = client.GetImgClsResult(user);
     std::cout << "Greeter received: " << response << std::endl;
 
     return 0;

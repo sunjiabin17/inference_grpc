@@ -11,20 +11,20 @@
 #include <grpcpp/health_check_service_interface.h>
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
 
-#include "my_grpc_service.pb.h"
-#include "my_grpc_service.grpc.pb.h"
+#include "grpc_infer_service.pb.h"
+#include "grpc_infer_service.grpc.pb.h"
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
 using grpc::Status;
 
-using my_grpc_service::Request;
-using my_grpc_service::Response;
-using my_grpc_service::MyGrpcService;
+using grpc_infer_service::Request;
+using grpc_infer_service::Response;
+using grpc_infer_service::InferenceService;
 
 // Logic and data behind the server's behavior.
-class HelloWorldServiceImpl final : public MyGrpcService::Service {
-    Status GetResult(ServerContext* context, const Request* request,
+class HelloWorldServiceImpl final : public InferenceService::Service {
+    Status GetImgClsResult(ServerContext* context, const Request* request,
                     Response* response) override {
         std::string prefix("Hello ");
         // get current time, format it as HH:MM:SS
@@ -36,7 +36,6 @@ class HelloWorldServiceImpl final : public MyGrpcService::Service {
         response->set_message(prefix + request->name() + " at " + time_str);
         return Status::OK;
     }
-
 };
 
 void RunServer(uint16_t port) {
