@@ -17,17 +17,25 @@ class Logger : public nvinfer1::ILogger {
 
 class Engine {
 public:
-    Engine(const std::string& model_path, const std::string& device);
-    bool load_model(const std::string& model_path);
+    Engine(const std::string& mode, const unsigned int& max_batchsize, 
+            const std::string& onnx_file, const std::string& engine_file, const bool is_compile=false);
+    ~Engine();
     
-    bool compile(const std::string& mode, const unsigned int& max_batchsize, 
+    int compile(const std::string& mode, const unsigned int& max_batchsize, 
             const std::string& onnx_file, const std::string& engine_file);
-    bool load_network(const std::string& enginefile);
-    std::string inference(const std::string& sentence);
+    int deSerializeEngine(const std::string& enginefile);
+private:
+    nvinfer1::ICudaEngine* _engine;
+    Logger _logger;
+    cudaStream_t _stream;
+};
+
+class Classifier {
+public:
+    Classifier(std::shared_ptr<nvinfer1::ICudaEngine> engine);
+    ~Classifier();
+    int infer(const void* input, void* output);
 private:
     std::shared_ptr<nvinfer1::ICudaEngine> _engine;
-    std::shared_ptr<nvinfer1::IExecutionContext> _context;
-    std::shared_ptr<nvinfer1::IRuntime> _runtime;
-    Logger _logger;
     cudaStream_t _stream;
 };
