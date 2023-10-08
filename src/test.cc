@@ -13,6 +13,7 @@
 #include <opencv2/opencv.hpp>
 
 
+
 struct InferDeleter
 {
     template <typename T>
@@ -34,9 +35,8 @@ class InferenceEngine {
 public:
     InferenceEngine(const std::string& mode, const unsigned int& max_batchsize, 
             const std::string& onnx_file, const std::string& engine_file, const bool is_compile=false);
-    
+
     bool build();
-    // int deSerializeEngine();
 
     Logger _logger;
 
@@ -45,12 +45,6 @@ private:
     nvinfer1::Dims _output_dims;
     cudaStream_t _stream;
 
-    /**
-     * Error Code 3: API Usage Error (Parameter check failed at: 
-     * runtime/rt/runtime.cpp::~Runtime::346, condition: mEngineCounter.use_count() == 1. 
-     * Destroying a runtime before destroying deserialized engines created by the runtime leads to undefined behavior.
-     * runtime声明放在engine之前
-    */
     std::shared_ptr<nvinfer1::IRuntime> _runtime;
     std::shared_ptr<nvinfer1::ICudaEngine> _engine;
 
@@ -197,82 +191,8 @@ bool InferenceEngine::build() {
 }
 
 
-// int InferenceEngine::deSerializeEngine() {
-//     std::ifstream file(_engine_file, std::ios::binary | std::ios::ate);
-//     std::streamsize size = file.tellg();
-//     file.seekg(0, std::ios::beg);
-//     std::vector<char> buffer(size);
-//     if (!file.read(buffer.data(), size)) {
-//         _logger.log(nvinfer1::ILogger::Severity::kERROR, "Could not read file");
-//         // std::cout << "Could not read file" << std::endl;
-//         return 1;
-//     }
-//     nvinfer1::IRuntime* runtime = nvinfer1::createInferRuntime(_logger);
-//     // std::unique_ptr<nvinfer1::IRuntime> runtime{nvinfer1::createInferRuntime(_logger)};
-//     if (runtime == nullptr) {
-//         _logger.log(nvinfer1::ILogger::Severity::kERROR, "Could not create runtime");
-//         // std::cout << "Could not create runtime" << std::endl;
-//         return 1;
-//     }
-
-//     _engine = std::shared_ptr<nvinfer1::ICudaEngine>(runtime->deserializeCudaEngine(buffer.data(), size));
-//     if (_engine == nullptr) {
-//         _logger.log(nvinfer1::ILogger::Severity::kERROR, "Could not deserialize engine");
-//         // std::cout << "Could not deserialize engine" << std::endl;
-//         return 1;
-//     }
-
-//     // auto ret = cudaStreamCreate(&_stream);
-//     // if (ret != cudaSuccess) {
-//     //     std::cout << "Could not create stream" << std::endl;
-//     //     return 1;
-//     // }
-//     return 0;
-// }
-
-
-// test
 int main(int argc, char** argv) {
     std::string model_path = "/home/tars/projects/code/inference_grpc/models/densenet_onnx/model.onnx";
     InferenceEngine engine("tf32", 1, model_path, "model.engine", true);
     engine.build();
-
-    // std::shared_ptr<InferenceEngine> engine = std::make_shared<InferenceEngine>(
-    //     "fp16", 1, model_path, "model.engine", true);
-    // std::string label_path("/home/tars/projects/code/inference_grpc/models/densenet_onnx/densenet_labels.txt");
-    // // std::unique_ptr<Classifier> classifier = std::make_unique<Classifier>(
-    // //     engine, label_path);
-    // std::string img_path("/home/tars/projects/code/inference_grpc/test/DSC00866-Enhanced-NR.jpg");
-    // cv::Mat img = cv::imread(img_path);
-    // if (img.empty()) {
-    //     std::cout << "Could not read image" << std::endl;
-    //     return 1;
-    // }
-    // std::cout << "image size: " << img.size() << std::endl;
-    // // 将图像缩放到 224x224 大小
-    // cv::Mat resized_img;
-    // cv::resize(img, resized_img, cv::Size(224, 224));
-    
-
-    // // 将图像转换为 TensorRT 引擎输入格式
-    // const int batch_size = 1;
-    // const int channels = 3;
-    // const int height = 224;
-    // const int width = 224;
-    // const int input_size = batch_size * channels * height * width;
-    // float* input_data = new float[input_size];
-
-    // for (int c = 0; c < channels; ++c) {
-    //     for (int h = 0; h < height; ++h) {
-    //         for (int w = 0; w < width; ++w) {
-    //             int idx = c * height * width + h * width + w;
-    //             input_data[idx] = resized_img.at<cv::Vec3b>(h, w)[c] / 255.0f;
-    //             std::cout << input_data[idx] << " ";
-    //         }
-    //     }
-    // }
-
-
-
-    return 0;
 }

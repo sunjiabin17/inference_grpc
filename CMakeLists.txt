@@ -35,6 +35,7 @@ set(CUDA_TOOLKIT_DIR "/usr/local/cuda")
 set(CUDA_INCLUDE_DIRS ${CUDA_TOOLKIT_DIR}/include)
 include_directories(
     ${TENSORRT_INCLUDE_DIRS}
+    ${TENSORRT_DIR}/samples/common
     ${CUDA_INCLUDE_DIRS}
 )
 
@@ -92,7 +93,12 @@ add_executable(grpc_server ${GRPC_SERVER})
 add_executable(grpc_client ${GRPC_CLIENT})
 
 add_executable(trt_test src/model_tensorrt.cc)
-target_link_libraries(trt_test ${CUDA_LIBRARIES} nvinfer nvonnxparser ${OpenCV_LIBS})
+target_link_libraries(trt_test ${CUDA_LIBRARIES} ${OpenCV_LIBS} nvinfer nvonnxparser nvparsers)
+set(SAMPLES_COMMON_SOURCES
+    ${TENSORRT_DIR}/samples/common/logger.cpp
+)
+add_executable(test src/test.cc)
+target_link_libraries(test ${CUDA_LIBRARIES} ${OpenCV_LIBS} nvinfer nvonnxparser nvparsers)
 
 # 方法1链接
 # 这里如果不链接grpc_proto会报错，如果链接grpc_proto时不加${_PROTO_SRCS} ${_PROTO_HDRS} ${_GRPC_SRCS} ${_GRPC_HDRS}也会报错

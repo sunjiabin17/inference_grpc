@@ -7,6 +7,18 @@
 #include <NvInfer.h>
 // #include <buffers.h>
 
+struct InferDeleter
+{
+    template <typename T>
+    void operator()(T* obj) const
+    {
+        delete obj;
+    }
+};
+
+template <typename T>
+using SampleUniquePtr = std::unique_ptr<T, InferDeleter>;
+
 
 class Logger : public nvinfer1::ILogger {
     void log (Severity severity, const char* msg) noexcept override;
@@ -17,10 +29,11 @@ class InferenceEngine {
 public:
     InferenceEngine(const std::string& mode, const unsigned int& max_batchsize, 
             const std::string& onnx_file, const std::string& engine_file, const bool is_compile=false);
-    ~InferenceEngine();
+    // ~InferenceEngine();
     
-    int compile(const std::string& mode, const unsigned int& max_batchsize, 
+    int build(const std::string& mode, const unsigned int& max_batchsize, 
             const std::string& onnx_file, const std::string& engine_file);
+
     int deSerializeEngine(const std::string& enginefile);
 private:
     std::shared_ptr<nvinfer1::ICudaEngine> _engine;
