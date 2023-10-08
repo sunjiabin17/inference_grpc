@@ -32,5 +32,4 @@
 *.app
 
 /build
-/third_party
 /libs

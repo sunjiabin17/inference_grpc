@@ -5,3 +5,6 @@
 	path = third_party/TensorRT
 	url = https://github.com/NVIDIA/TensorRT.git
 	branch = release/8.6
+[submodule "third_party/opencv"]
+	path = third_party/opencv
+	url = https://github.com/opencv/opencv.git

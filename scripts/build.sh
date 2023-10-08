@@ -1,6 +1,8 @@
 #!/bin/bash
 # git submodule add https://github.com/grpc/grpc third_party/grpc 
 # git submodule add -b release/8.6 https://github.com/NVIDIA/TensorRT.git third_party/TensorRT
+# git submodule add -f https://github.com/opencv/opencv.git third_party/opencv
+# git checkout tags/4.8.0
 
 # export TRT_OSSPATH=/home/tars/projects/code/inference_grpc/third_party/TensorRT
 # export TRT_LIBPATH=/home/tars/projects/code/inference_grpc/third_party/TensorRT-8.6.1.6/lib

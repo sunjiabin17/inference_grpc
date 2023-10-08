@@ -5,8 +5,9 @@ cmake_minimum_required(VERSION 3.8)
 project(GrpcTest C CXX)
 
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/libs/grpc_lib)
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/libs/TensorRT_lib)
-
+# set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/libs/TensorRT_lib)
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/libs/TensorRT-8.6.1.6)
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/libs/opencv-4.8.0)
 # 设置C++标准
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -25,6 +26,7 @@ MESSAGE(STATUS "Using gRPC ${gRPC_VERSION}")
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 include_directories(${_GRPC_GRPCPP_INCLUDE_DIR})
 
+# 添加cuda依赖、tensorrt依赖
 find_package(CUDA REQUIRED)
 set(TENSORRT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/TensorRT-8.6.1.6)
 set(TENSORRT_INCLUDE_DIRS ${TENSORRT_DIR}/include)
@@ -40,6 +42,13 @@ link_directories(
     ${TENSORRT_DIR}/lib
     ${CUDA_TOOLKIT_DIR}/lib64
 )
+
+# 添加opencv依赖
+find_package(OpenCV REQUIRED)
+message(STATUS "OpenCV library status: " ${OpenCV_FOUND})
+message(STATUS "OpenCV include dirs: " ${OpenCV_INCLUDE_DIRS})
+
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 # Include generated *.pb.h files
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
@@ -83,7 +92,7 @@ add_executable(grpc_server ${GRPC_SERVER})
 add_executable(grpc_client ${GRPC_CLIENT})
 
 add_executable(trt_test src/model_tensorrt.cc)
-target_link_libraries(trt_test ${CUDA_LIBRARIES} nvinfer nvonnxparser)
+target_link_libraries(trt_test ${CUDA_LIBRARIES} nvinfer nvonnxparser ${OpenCV_LIBS})
 
 # 方法1链接
 # 这里如果不链接grpc_proto会报错，如果链接grpc_proto时不加${_PROTO_SRCS} ${_PROTO_HDRS} ${_GRPC_SRCS} ${_GRPC_HDRS}也会报错
