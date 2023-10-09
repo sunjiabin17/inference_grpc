@@ -92,7 +92,7 @@ add_custom_command(
 add_executable(grpc_server ${GRPC_SERVER})
 add_executable(grpc_client ${GRPC_CLIENT})
 
-add_executable(trt_test src/model_tensorrt.cc)
+add_executable(trt_test src/img_classify_tensorrt.cc)
 target_link_libraries(trt_test ${CUDA_LIBRARIES} ${OpenCV_LIBS} nvinfer nvonnxparser nvparsers)
 set(SAMPLES_COMMON_SOURCES
     ${TENSORRT_DIR}/samples/common/logger.cpp
