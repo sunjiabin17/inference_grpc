@@ -1,74 +1,10 @@
+#include "img_classify_tensorrt.h"
+
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <sstream>
-#include <string>
-#include <vector>
 
-#include <cuda_runtime_api.h>
-
-#include <NvInfer.h>
-#include <NvOnnxParser.h>
-
-#include <opencv2/opencv.hpp>
-
-
-struct InferDeleter
-{
-    template <typename T>
-    void operator()(T* obj) const
-    {
-        delete obj;
-    }
-};
-
-template <typename T>
-using my_unique_ptr = std::unique_ptr<T, InferDeleter>;
-
-class Logger : public nvinfer1::ILogger {
-public:
-    void log (Severity severity, const char* msg) noexcept override;
-};
-
-class InferenceEngine {
-public:
-    InferenceEngine(const std::string& mode, const unsigned int& max_batchsize, 
-            const std::string& onnx_file, const std::string& engine_file, const std::string label_file);
-    
-    int build();
-    int deserialize_engine();
-    int infer(void* input, void* output);
-    int load_labels();
-    std::string get_label(const int& idx) {
-        if (idx < 0 || idx >= labels.size()) {
-            return "Unknown";
-        }
-        return labels[idx];
-    }
-
-    Logger _logger;
-
-private:
-    nvinfer1::Dims _input_dims;
-    nvinfer1::Dims _output_dims;
-    cudaStream_t _stream;
-
-    /**
-     * Error Code 3: API Usage Error (Parameter check failed at: 
-     * runtime/rt/runtime.cpp::~Runtime::346, condition: mEngineCounter.use_count() == 1. 
-     * Destroying a runtime before destroying deserialized engines created by the runtime leads to undefined behavior.
-     * runtime声明放在engine之前
-    */
-    std::shared_ptr<nvinfer1::IRuntime> _runtime;
-    std::shared_ptr<nvinfer1::ICudaEngine> _engine;
-
-    std::string _mode;
-    unsigned int _max_batchsize;
-    std::string _onnx_file;
-    std::string _engine_file;
-    std::string _label_file;
-    std::vector<std::string> labels;
-};
 
 void Logger::log(Severity severity, const char *msg) noexcept {
     if (severity <= Severity::kERROR) {
@@ -88,7 +24,28 @@ InferenceEngine::InferenceEngine(const std::string& mode, const unsigned int& ma
     _engine_file(engine_file),
     _label_file(label_file)
 {
-    load_labels();
+    init();
+}
+
+int InferenceEngine::init() {
+    if (load_labels() != 0) {
+        std::cout << "Could not load labels" << std::endl;
+        return 1;
+    }
+    std::ifstream ifs(_engine_file);
+    if (ifs.good()) {
+        std::cout << "deserializing engine..." << std::endl;
+        return deserialize_engine();
+    } else {
+        return build();
+    }
+    return 0;
+}
+
+int InferenceEngine::destroy() {
+    // _engine->destroy();
+    // _runtime->destroy();
+    return 0;
 }
 
 int InferenceEngine::load_labels() {
@@ -334,54 +291,54 @@ int InferenceEngine::infer(void* input, void* output) {
 
     return 0;
 }
-// test
-int main(int argc, char** argv) {
-    std::string onnx_file = "/home/tars/projects/code/inference_grpc/models/densenet_onnx/model.onnx";
-    std::string label_file = "/home/tars/projects/code/inference_grpc/models/densenet_onnx/densenet_labels.txt";
-    std::string engine_file = "/home/tars/projects/code/inference_grpc/build/model.engine";
-    InferenceEngine engine("tf32", 1, onnx_file, engine_file, label_file);
+// // test
+// int main(int argc, char** argv) {
+//     std::string onnx_file = "/home/tars/projects/code/inference_grpc/models/densenet_onnx/model.onnx";
+//     std::string label_file = "/home/tars/projects/code/inference_grpc/models/densenet_onnx/densenet_labels.txt";
+//     std::string engine_file = "/home/tars/projects/code/inference_grpc/build/model.engine";
+//     InferenceEngine engine("tf32", 1, onnx_file, engine_file, label_file);
     
-    // engine.build();
-    engine.deserialize_engine();
+//     // engine.build();
+//     engine.deserialize_engine();
 
-    std::string img_path("/home/tars/projects/code/inference_grpc/test/cat.jpg");
-    cv::Mat img = cv::imread(img_path);
-    if (img.empty()) {
-        std::cout << "Could not read image" << std::endl;
-        return 1;
-    }
-    std::cout << "image size: " << img.size() << std::endl;
-    // 将图像缩放到 224x224 大小
-    cv::Mat resized_img;
-    cv::resize(img, resized_img, cv::Size(224, 224));
+//     std::string img_path("/home/tars/projects/code/inference_grpc/test/cat.jpg");
+//     cv::Mat img = cv::imread(img_path);
+//     if (img.empty()) {
+//         std::cout << "Could not read image" << std::endl;
+//         return 1;
+//     }
+//     std::cout << "image size: " << img.size() << std::endl;
+//     // 将图像缩放到 224x224 大小
+//     cv::Mat resized_img;
+//     cv::resize(img, resized_img, cv::Size(224, 224));
     
 
-    // 将图像转换为 TensorRT 引擎输入格式
-    const int batch_size = 1;
-    const int channels = 3;
-    const int height = 224;
-    const int width = 224;
-    const int input_size = batch_size * channels * height * width;
+//     // 将图像转换为 TensorRT 引擎输入格式
+//     const int batch_size = 1;
+//     const int channels = 3;
+//     const int height = 224;
+//     const int width = 224;
+//     const int input_size = batch_size * channels * height * width;
     
-    float* input_data = new float[input_size];
-    for (int c = 0; c < channels; ++c) {
-        for (int h = 0; h < height; ++h) {
-            for (int w = 0; w < width; ++w) {
-                int idx = c * height * width + h * width + w;
-                input_data[idx] = resized_img.at<cv::Vec3b>(h, w)[c] / 255.0f;
-            }
-        }
-    }
+//     float* input_data = new float[input_size];
+//     for (int c = 0; c < channels; ++c) {
+//         for (int h = 0; h < height; ++h) {
+//             for (int w = 0; w < width; ++w) {
+//                 int idx = c * height * width + h * width + w;
+//                 input_data[idx] = resized_img.at<cv::Vec3b>(h, w)[c] / 255.0f;
+//             }
+//         }
+//     }
 
-    float* output_data = new float[batch_size * 1000];
+//     float* output_data = new float[batch_size * 1000];
     
-    engine.infer(input_data, output_data);
+//     engine.infer(input_data, output_data);
 
-    float* max_element = std::max_element(output_data, output_data + 1000);
-    int max_idx = max_element - output_data;
-    std::cout << "max element: " << *max_element << std::endl;
-    std::cout << "max index: " << max_idx << std::endl;
-    std::cout << "label: " << engine.get_label(max_idx) << std::endl;
+//     float* max_element = std::max_element(output_data, output_data + 1000);
+//     int max_idx = max_element - output_data;
+//     std::cout << "max element: " << *max_element << std::endl;
+//     std::cout << "max index: " << max_idx << std::endl;
+//     std::cout << "label: " << engine.get_label(max_idx) << std::endl;
 
-    return 0;
-}
+//     return 0;
+// }
