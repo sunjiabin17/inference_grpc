@@ -55,11 +55,13 @@ private:
 
 
 int main(int argc, char** argv) {
+    std::string address = "localhost";
     uint16_t port = 50051;
     std::string img_file = "/home/tars/projects/code/inference_grpc/test/cat.jpg";
     
     cxxopts::Options options("gRPC Server", "gRPC Server for Inference"); 
     options.add_options()
+        ("address", "Address", cxxopts::value<std::string>()->default_value("localhost"))
         ("p,port", "Port", cxxopts::value<uint16_t>()->default_value(std::to_string(port)))
         ("img", "Image File", cxxopts::value<std::string>()->default_value(img_file))
         ("h,help", "Print usage");
@@ -71,23 +73,24 @@ int main(int argc, char** argv) {
         exit(0);
     }
 
+    address = result["address"].as<std::string>();
     port = result["port"].as<uint16_t>();
     img_file = result["img"].as<std::string>();
     std::cout << "img_file: " << img_file << std::endl;
-    
+
     cv::Mat img = cv::imread(img_file);
     if (img.empty()) {
         std::cout << "Image is empty" << std::endl;
         return -1;
     }
     std::cout << "Image size: " << img.size() << std::endl;
-
     cv::Mat resized_img;
     cv::resize(img, resized_img, cv::Size(224, 224));
+    std::cout << "resized image size: " << resized_img.size() << std::endl;
     std::string img_base64;
     image_to_base64(resized_img, img_base64);
 
-    std::string target = "localhost:" + std::to_string(port);
+    std::string target = address + ":" + std::to_string(port);
     InferenceClient client(
         grpc::CreateChannel(target, grpc::InsecureChannelCredentials()));
     
