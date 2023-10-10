@@ -245,8 +245,8 @@ int InferenceEngine::infer(void* input, void* output) {
 
     const int input_size = _max_batchsize * _input_dims.d[1] * _input_dims.d[2] * _input_dims.d[3];
     const int output_size = _max_batchsize * _output_dims.d[1] * _output_dims.d[2] * _output_dims.d[3];
-    std::cout << "input size: " << input_size << std::endl;
-    std::cout << "output size: " << output_size << std::endl;
+    // std::cout << "input size: " << input_size << std::endl;
+    // std::cout << "output size: " << output_size << std::endl;
 
     float* input_data = static_cast<float*>(input);
     float* output_data = static_cast<float*>(output);
