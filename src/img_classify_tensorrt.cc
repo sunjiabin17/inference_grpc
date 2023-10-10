@@ -37,6 +37,7 @@ int InferenceEngine::init() {
         std::cout << "deserializing engine..." << std::endl;
         return deserialize_engine();
     } else {
+        std::cout << "building engine..." << std::endl;
         return build();
     }
     return 0;
