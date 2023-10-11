@@ -53,24 +53,26 @@ add_custom_command(
     DEPENDS "${MY_PROTO}"
 )
 
-# ------------------
-# 添加cuda依赖、tensorrt依赖
-find_package(CUDA REQUIRED)
-set(TENSORRT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/TensorRT-8.6.1.6)
-set(TENSORRT_INCLUDE_DIRS ${TENSORRT_DIR}/include)
+if(BUILD_TRT)
+    # ------------------
+    # 添加cuda依赖、tensorrt依赖
+    find_package(CUDA REQUIRED)
+    set(TENSORRT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/TensorRT-8.6.1.6)
+    set(TENSORRT_INCLUDE_DIRS ${TENSORRT_DIR}/include)
 
-set(CUDA_TOOLKIT_DIR "/usr/local/cuda")
-set(CUDA_INCLUDE_DIRS ${CUDA_TOOLKIT_DIR}/include)
-include_directories(
-    ${TENSORRT_INCLUDE_DIRS}
-    ${TENSORRT_DIR}/samples/common
-    ${CUDA_INCLUDE_DIRS}
-)
+    set(CUDA_TOOLKIT_DIR "/usr/local/cuda")
+    set(CUDA_INCLUDE_DIRS ${CUDA_TOOLKIT_DIR}/include)
+    include_directories(
+        ${TENSORRT_INCLUDE_DIRS}
+        ${TENSORRT_DIR}/samples/common
+        ${CUDA_INCLUDE_DIRS}
+    )
 
-link_directories(
-    ${TENSORRT_DIR}/lib
-    ${CUDA_TOOLKIT_DIR}/lib64
-)
+    link_directories(
+        ${TENSORRT_DIR}/lib
+        ${CUDA_TOOLKIT_DIR}/lib64
+    )
+endif()
 
 # ------------------
 # 添加opencv依赖
@@ -94,8 +96,10 @@ set(CXX_OPTS include/cxxopts.hpp)
 set(BASE64 src/base64.cc)
 set(HELPER src/helper.cc)
 
-add_library(lib_infer_server ${INFER_SERVER})
-target_link_libraries(lib_infer_server ${CUDA_LIBRARIES} ${OpenCV_LIBS} nvinfer nvonnxparser nvparsers)
+if(BUILD_TRT)
+    add_library(lib_infer_server ${INFER_SERVER})
+    target_link_libraries(lib_infer_server ${CUDA_LIBRARIES} ${OpenCV_LIBS} nvinfer nvonnxparser nvparsers)
+endif()
 
 # 对应的lib都是由模板类头文件.hpp生成的，而其中并没有.cpp或者.c文件。所以需要设置一下链接器的语言为C++，否则会报错
 add_library(lib_cxxopts ${CXX_OPTS})
@@ -114,8 +118,12 @@ add_executable(grpc_client ${GRPC_CLIENT})
 # 这里如果不链接grpc_proto会报错，如果链接grpc_proto时不加${_PROTO_SRCS} ${_PROTO_HDRS} ${_GRPC_SRCS} ${_GRPC_HDRS}也会报错
 add_library(lib_grpc_proto ${_PROTO_SRCS} ${_PROTO_HDRS} ${_GRPC_SRCS} ${_GRPC_HDRS})
 target_link_libraries(lib_grpc_proto protobuf::libprotobuf gRPC::grpc++ gRPC::grpc++_reflection)
-target_link_libraries(grpc_server lib_grpc_proto lib_infer_server lib_cxxopts lib_base64 lib_helper gRPC::grpc++ gRPC::grpc++_reflection protobuf::libprotobuf)
-target_link_libraries(grpc_client lib_grpc_proto lib_infer_server lib_cxxopts lib_base64 lib_helper gRPC::grpc++ gRPC::grpc++_reflection protobuf::libprotobuf)
+
+if(BUILD_TRT)
+    target_link_libraries(grpc_server lib_grpc_proto lib_infer_server lib_cxxopts lib_base64 lib_helper)
+endif()
+
+target_link_libraries(grpc_client lib_grpc_proto lib_cxxopts lib_base64 lib_helper)
 
 # 方法2链接
 # 将生成的 gRPC 的 C++ 代码添加到可执行文件中：
@@ -127,5 +135,5 @@ target_link_libraries(grpc_client lib_grpc_proto lib_infer_server lib_cxxopts li
 # 只编译生成proto文件
 add_custom_target(proto DEPENDS ${_PROTO_SRCS} ${_PROTO_HDRS} ${_GRPC_SRCS} ${_GRPC_HDRS})
 
-add_executable(test test/test.cc)
-target_link_libraries(test lib_grpc_proto lib_infer_server lib_cxxopts lib_base64 lib_helper gRPC::grpc++ gRPC::grpc++_reflection protobuf::libprotobuf)
+# add_executable(test test/test.cc)
+# target_link_libraries(test lib_grpc_proto lib_infer_server lib_cxxopts lib_base64 lib_helper gRPC::grpc++ gRPC::grpc++_reflection protobuf::libprotobuf)
