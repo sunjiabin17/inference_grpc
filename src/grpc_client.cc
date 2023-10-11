@@ -43,8 +43,7 @@ public:
             return response.message();
         }
         else {
-            std::cout << status.error_code() << ": " << status.error_message()
-                << std::endl;
+            LOG_ERROR(status.error_code() << ": " << status.error_message());
             return "RPC failed";
         }
     }
@@ -76,17 +75,17 @@ int main(int argc, char** argv) {
     address = result["address"].as<std::string>();
     port = result["port"].as<uint16_t>();
     img_file = result["img"].as<std::string>();
-    std::cout << "img_file: " << img_file << std::endl;
+    LOG_INFO("img_file: " << img_file);
 
     cv::Mat img = cv::imread(img_file);
     if (img.empty()) {
-        std::cout << "Image is empty" << std::endl;
+        LOG_ERROR("Image is empty");
         return -1;
     }
-    std::cout << "Image size: " << img.size() << std::endl;
+    LOG_INFO("Image size: " << img.size());
     cv::Mat resized_img;
     cv::resize(img, resized_img, cv::Size(224, 224));
-    std::cout << "resized image size: " << resized_img.size() << std::endl;
+    LOG_INFO("resized image size: " << resized_img.size());
     std::string img_base64;
     image_to_base64(resized_img, img_base64);
 
@@ -95,7 +94,6 @@ int main(int argc, char** argv) {
         grpc::CreateChannel(target, grpc::InsecureChannelCredentials()));
     
     std::string response = client.GetImgClsResult(img_base64);
-    std::cout << "gRPC receive: " << response << std::endl;
-
+    LOG_INFO("gRPC receive: " << response);
     return 0;
 }

@@ -56,7 +56,7 @@ private:
         cv::Mat img;
         base64_to_image(base64_img_str, img);
         if (img.empty()) {
-            std::cout << "Could not read image" << std::endl;
+            LOG_ERROR("Could not read image");
             return Status::CANCELLED;
         }        
 
@@ -110,7 +110,7 @@ void RunServer(uint16_t port, const std::string& mode, const unsigned int& max_b
     builder.RegisterService(&service);
     // Finally assemble the server.
     std::unique_ptr<Server> server(builder.BuildAndStart());
-    std::cout << "Server listening on " << server_address << std::endl;
+    LOG_INFO("Server listening on " + server_address);
 
     // Wait for the server to shutdown. Note that some other thread must be
     // responsible for shutting down the server for this call to ever return.

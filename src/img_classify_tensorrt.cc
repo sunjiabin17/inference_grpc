@@ -5,10 +5,11 @@
 #include <memory>
 #include <sstream>
 
+#include "helper.h"
 
 void Logger::log(Severity severity, const char *msg) noexcept {
     if (severity <= Severity::kERROR) {
-        std::cout << msg << std::endl;
+        LOG_ERROR(msg);
     }
 }
 
@@ -29,15 +30,15 @@ InferenceEngine::InferenceEngine(const std::string& mode, const unsigned int& ma
 
 int InferenceEngine::init() {
     if (load_labels() != 0) {
-        std::cout << "Could not load labels" << std::endl;
+        LOG_ERROR("Could not load labels");
         return 1;
     }
     std::ifstream ifs(_engine_file);
     if (ifs.good()) {
-        std::cout << "deserializing engine..." << std::endl;
+        LOG_INFO("deserializing engine...");
         return deserialize_engine();
     } else {
-        std::cout << "building engine..." << std::endl;
+        LOG_INFO("building engine...");
         return build();
     }
     return 0;
@@ -52,7 +53,7 @@ int InferenceEngine::destroy() {
 int InferenceEngine::load_labels() {
         std::ifstream file(_label_file);
     if (!file.is_open()) {
-        std::cout << "Could not open label file" << std::endl;
+        LOG_ERROR("Could not open label file");
         return 1;
     }
     std::string line;
@@ -66,63 +67,63 @@ int InferenceEngine::load_labels() {
 int InferenceEngine::build() {
     auto builder = my_unique_ptr<nvinfer1::IBuilder>(nvinfer1::createInferBuilder(_logger));
     if (builder == nullptr) {
-        std::cout << "Could not create builder" << std::endl;
+        LOG_ERROR("Could not create builder");
         return 1;
     }
 
 	const auto explicitBatch = 1U << static_cast<uint32_t>(nvinfer1::NetworkDefinitionCreationFlag::kEXPLICIT_BATCH);
     auto network = my_unique_ptr<nvinfer1::INetworkDefinition>(builder->createNetworkV2(explicitBatch));
     if (network == nullptr) {
-        std::cout << "Could not create network" << std::endl;
+        LOG_ERROR("Could not create network");
         return 1;
     }
 
     auto config = my_unique_ptr<nvinfer1::IBuilderConfig>(builder->createBuilderConfig());
     if (config == nullptr) {
-        std::cout << "Could not create builder config" << std::endl;
+        LOG_ERROR("Could not create builder config");
         return 1;
     }
 
     auto onnx_parser = my_unique_ptr<nvonnxparser::IParser>(nvonnxparser::createParser(*network, _logger));
     if (onnx_parser == nullptr) {
-        std::cout << "Could not create parser" << std::endl;
+        LOG_ERROR("Could not create parser");
         return 1;
     }
     if (!onnx_parser->parseFromFile(_onnx_file.c_str(), static_cast<int>(nvinfer1::ILogger::Severity::kINFO))) {
-        std::cout << "Could not parse ONNX file" << std::endl;
+        LOG_ERROR("Could not parse ONNX file");
         return 1;
     }
 
     if (_mode == "fp16") {
         if (!builder->platformHasFastFp16()) {
-            std::cout << "Platform does not support fast FP16" << std::endl;
+            LOG_ERROR("Platform does not support fast FP16");
             return 1;
         }
         config->setFlag(nvinfer1::BuilderFlag::kFP16);
     }
     else if (_mode == "int8") {
         if (!builder->platformHasFastInt8()) {
-            std::cout << "Platform does not support Int8" << std::endl;
+            LOG_ERROR("Platform does not support Int8");
             return 1;
         }
         config->setFlag(nvinfer1::BuilderFlag::kINT8);
     }
     else if (_mode == "tf32") {
         if (!builder->platformHasTf32()) {
-            std::cout << "Platform does not support Tf32" << std::endl;
+            LOG_ERROR("Platform does not support Tf32");
             return 1;
         }
         config->setFlag(nvinfer1::BuilderFlag::kTF32);
     }
     else {
-        std::cout << "Unknown mode" << std::endl;
+        LOG_ERROR("Unknown mode");
         return 1;
     }
 
 
     auto ret = cudaStreamCreate(&_stream);
     if (ret != cudaSuccess) {
-        std::cout << "Could not create stream" << std::endl;
+        LOG_ERROR("Could not create stream");
         return 1;
     }
     config->setProfileStream(_stream);
@@ -137,7 +138,7 @@ int InferenceEngine::build() {
 
     // nvinfer1::IOptimizationProfile* profile = builder->createOptimizationProfile();
     // if (profile == nullptr) {
-    //     std::cout << "Could not create optimization profile" << std::endl;
+    //     LOG_ERROR("Could not create optimization profile");
     //     return 1;
     // }
     // profile->setDimensions(inputname, nvinfer1::OptProfileSelector::kMIN, nvinfer1::Dims4(1, 3, 224, 224));
@@ -147,12 +148,12 @@ int InferenceEngine::build() {
     
     my_unique_ptr<nvinfer1::IHostMemory> plan(builder->buildSerializedNetwork(*network, *config));
     if (plan == nullptr) {
-        std::cout << "Could not build serialized network" << std::endl;
+        LOG_ERROR("Could not build serialized network");
         return 1;
     }
     FILE* f = fopen(_engine_file.c_str(), "wb");
     if (f == nullptr) {
-        std::cout << "Could not open file for writing" << std::endl;
+        LOG_ERROR("Could not open file for writing");
         return 1;
     }
     fwrite(plan->data(), 1, plan->size(), f);
@@ -160,13 +161,13 @@ int InferenceEngine::build() {
 
     _runtime = std::shared_ptr<nvinfer1::IRuntime>(nvinfer1::createInferRuntime(_logger));
     if (_runtime == nullptr) {
-        std::cout << "Could not create runtime" << std::endl;
+        LOG_ERROR("Could not create runtime");
         return 1;
     }
     _engine = std::shared_ptr<nvinfer1::ICudaEngine>(_runtime->deserializeCudaEngine(plan->data(), plan->size()), InferDeleter());
 
     if (_engine == nullptr) {
-        std::cout << "Could not create engine" << std::endl;
+        LOG_ERROR("Could not create engine");
         return 1;
     }
     assert(network->getNbInputs() == 1);
@@ -187,15 +188,14 @@ int InferenceEngine::deserialize_engine() {
     file.seekg(0, std::ios::beg);
     std::vector<char> buffer(size);
     if (!file.read(buffer.data(), size)) {
-        _logger.log(nvinfer1::ILogger::Severity::kERROR, "Could not read file");
-        // std::cout << "Could not read file" << std::endl;
+        LOG_ERROR("Could not read file");
         return 1;
     }
     if (_runtime == nullptr) {
         _runtime = std::shared_ptr<nvinfer1::IRuntime>(nvinfer1::createInferRuntime(_logger));
     }
     if (_runtime == nullptr) {
-        std::cout << "Could not create runtime" << std::endl;
+        LOG_ERROR("Could not create runtime");
         return 1;
     }
 
@@ -203,8 +203,7 @@ int InferenceEngine::deserialize_engine() {
         _engine = std::shared_ptr<nvinfer1::ICudaEngine>(_runtime->deserializeCudaEngine(buffer.data(), size));
     }
     if (_engine == nullptr) {
-        _logger.log(nvinfer1::ILogger::Severity::kERROR, "Could not deserialize engine");
-        // std::cout << "Could not deserialize engine" << std::endl;
+        LOG_ERROR("Could not deserialize engine");
         return 1;
     }
     _input_dims = _engine->getBindingDimensions(0);
@@ -212,7 +211,7 @@ int InferenceEngine::deserialize_engine() {
 
     // auto ret = cudaStreamCreate(&_stream);
     // if (ret != cudaSuccess) {
-    //     std::cout << "Could not create stream" << std::endl;
+    //     LOG_ERROR("Could not create stream");
     //     return 1;
     // }
     return 0;
@@ -221,7 +220,7 @@ int InferenceEngine::deserialize_engine() {
 int InferenceEngine::infer(void* input, void* output) {
     auto context = my_unique_ptr<nvinfer1::IExecutionContext>(_engine->createExecutionContext());
     if (context == nullptr) {
-        std::cout << "Could not create execution context" << std::endl;
+        LOG_ERROR("Could not create execution context");
         return 1;
     }
 
@@ -240,7 +239,7 @@ int InferenceEngine::infer(void* input, void* output) {
     //     }
     // }
     if (!context->allInputDimensionsSpecified()) {
-        std::cout << "Not all input dimensions are specified" << std::endl;
+        LOG_ERROR("Not all input dimensions are specified");
         return 1;
     }
 
@@ -260,7 +259,7 @@ int InferenceEngine::infer(void* input, void* output) {
     if (_stream == nullptr) {
         auto ret = cudaStreamCreate(&_stream);
         if (ret != cudaSuccess) {
-            std::cout << "Could not create stream" << std::endl;
+            LOG_ERROR("Could not create stream");
             return 1;
         }
     }
