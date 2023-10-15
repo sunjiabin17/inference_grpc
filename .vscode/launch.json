@@ -8,14 +8,14 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/trt_test",
+            "program": "${workspaceFolder}/build/grpc_server",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [
                 {
                     "name": "LD_LIBRARY_PATH",
-                    "value": "$LD_LIBRARY_PATH:${workspaceFolder}/libs/TensorRT-8.6.1.6/lib"
+                    "value": "$LD_LIBRARY_PATH:${workspaceFolder}/libs/TensorRT-8.6.1.6/lib:${workspaceFolder}/libs/opencv_lib/lib"
                 }
             ],
             "externalConsole": false,

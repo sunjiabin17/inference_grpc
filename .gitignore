@@ -34,3 +34,4 @@
 /build
 /libs
 /temp
+**/__pycache__

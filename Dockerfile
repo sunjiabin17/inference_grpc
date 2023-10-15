@@ -75,7 +75,7 @@ COPY libs/opencv_lib ${OPENCV_INSTALL_DIR}
 
 # RUN conda init bash
 # RUN conda create -n py39 python=3.9 -y 
-# RUN /bin/bash -c ". activate py39 && conda install -y opencv grpcio protobuf flask pillow"
+# RUN /bin/bash -c ". activate py39 && conda install -y opencv grpcio grpcio-tools protobuf flask pillow"
 
 # RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v24.4/protobuf-24.4.tar.gz
 # RUN tar -zxvf protobuf-24.4.tar.gz
@@ -95,3 +95,4 @@ RUN /bin/bash -c "cd ${WORKDIR} && \
     make grpc_client && \
     popd"
 
+# python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. grpc_infer_service.proto
