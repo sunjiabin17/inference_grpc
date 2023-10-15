@@ -87,12 +87,6 @@ message(STATUS "OpenCV include dirs: " ${OpenCV_INCLUDE_DIRS})
 
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-# get_cmake_property(_variableNames VARIABLES)
-# list (SORT _variableNames)
-# foreach (_variableName ${_variableNames})
-#     message(STATUS "${_variableName}=${${_variableName}}")
-# endforeach()
-
 # ------------------
 # Include generated *.pb.h files
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
@@ -149,4 +143,18 @@ add_custom_target(proto DEPENDS ${_PROTO_SRCS} ${_PROTO_HDRS} ${_GRPC_SRCS} ${_G
 # add_executable(test test/test.cc)
 # target_link_libraries(test lib_grpc_proto lib_infer_server lib_cxxopts lib_base64 lib_helper gRPC::grpc++ gRPC::grpc++_reflection protobuf::libprotobuf)
 
-# install(TARGETS grpc_server grpc_client DESTINATION bin)
+install(TARGETS grpc_server grpc_client DESTINATION bin)
+
+# install libnvinfer_plugin.so.8
+# install(FILES ${TENSORRT_DIR}/lib/libnvinfer_plugin.so.8 DESTINATION lib)
+# install(DIRECTORY ${TENSORRT_DIR}/lib DESTINATION .)
+# install libopencv_imgproc.so.408
+# install(FILES ${OpenCV_LIBS} DESTINATION lib)
+
+
+
+# get_cmake_property(_variableNames VARIABLES)
+# list (SORT _variableNames)
+# foreach (_variableName ${_variableNames})
+#     message(STATUS "${_variableName}=${${_variableName}}")
+# endforeach()
