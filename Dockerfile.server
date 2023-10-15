@@ -23,7 +23,7 @@ ENV GRPC_DIR=${WORKDIR}/third_party/grpc
 ENV OPENCV_DIR=${WORKDIR}/third_party/opencv
 ENV GRPC_INSTALL_DIR=${WORKDIR}/libs/grpc_lib
 ENV OPENCV_INSTALL_DIR=${WORKDIR}/libs/opencv_lib
-RUN mkdir -p ${GRPC_INSTALL_DIR} && mkdir -p ${GRPC_DIR} && mkdir -p ${OPENCV_DIR} && mkdir -p ${OPENCV_INSTALL_DIR}
+# RUN mkdir -p ${GRPC_INSTALL_DIR} && mkdir -p ${GRPC_DIR} && mkdir -p ${OPENCV_DIR} && mkdir -p ${OPENCV_INSTALL_DIR}
 
 ENV PATH=${GRPC_INSTALL_DIR}/bin:${PATH}
 
