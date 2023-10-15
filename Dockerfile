@@ -96,3 +96,7 @@ RUN /bin/bash -c "cd ${WORKDIR} && \
     popd"
 
 # python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. grpc_infer_service.proto
+# export PYTHONPATH=$PYTHONPATH:`pwd`/protos:`pwd`
+
+# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:`pwd`/../libs/TensorRT-8.6.1.6/lib
+# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:`pwd`/../libs/opencv_lib/lib
