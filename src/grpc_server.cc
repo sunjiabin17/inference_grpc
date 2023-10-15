@@ -87,7 +87,7 @@ private:
         // std::cout << "max index: " << max_idx << std::endl;
         // std::cout << "label: " << _infer_engine->get_label(max_idx) << std::endl;
         InferenceEngine* infer_engine = dynamic_cast<InferenceEngine*>(_infer_engine.get());
-        response->set_message("result: " + infer_engine->get_label(max_idx));
+        response->set_message(infer_engine->get_label(max_idx));
         return Status::OK;
     }
 
