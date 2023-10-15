@@ -7,7 +7,7 @@ project(InferGRPC CXX)
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/libs/grpc_lib)
 # set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/libs/TensorRT_lib)
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/libs/TensorRT-8.6.1.6)
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/libs/opencv_lib1)
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/libs/opencv_lib)
 MESSAGE(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 # 设置C++标准
 set(CMAKE_CXX_STANDARD 17)
@@ -148,3 +148,5 @@ add_custom_target(proto DEPENDS ${_PROTO_SRCS} ${_PROTO_HDRS} ${_GRPC_SRCS} ${_G
 
 # add_executable(test test/test.cc)
 # target_link_libraries(test lib_grpc_proto lib_infer_server lib_cxxopts lib_base64 lib_helper gRPC::grpc++ gRPC::grpc++_reflection protobuf::libprotobuf)
+
+# install(TARGETS grpc_server grpc_client DESTINATION bin)

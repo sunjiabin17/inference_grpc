@@ -7,10 +7,17 @@ ENV WORKDIR=/gprc_service
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Shanghai
 
-COPY src/ include/ scripts/ models/ protos/ test/ CMakeLists.txt ./
+# COPY src include scripts models protos test CMakeLists.txt ./
+COPY src ./src
+COPY include ./include
+COPY scripts ./scripts
+COPY models ./models
+COPY protos ./protos
+COPY test ./test
+COPY CMakeLists.txt ./CMakeLists.txt
 
 RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
-RUN apt update && apt install -y cmake build-essential autoconf libtool pkg-config git wget clang libc++-dev libprotobuf-dev protobuf-compiler
+RUN apt update && apt install -y cmake build-essential autoconf libtool pkg-config git wget clang libc++-dev libprotobuf-dev protobuf-compiler libpng-dev
 
 ENV GRPC_DIR=${WORKDIR}/third_party/grpc
 ENV OPENCV_DIR=${WORKDIR}/third_party/opencv
@@ -85,6 +92,6 @@ RUN /bin/bash -c "cd ${WORKDIR} && \
     mkdir -p build && \
     pushd build && \
     cmake .. && \
-    make -j4 && \
+    make grpc_client && \
     popd"
 
