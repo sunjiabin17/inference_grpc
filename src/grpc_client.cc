@@ -27,7 +27,6 @@ public:
         // Data we are sending to the server.
         Request request;
         request.set_name(data);
-
         // Container for the data we expect from the server.
         Response response;
 
