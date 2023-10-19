@@ -10,3 +10,10 @@ finally someone from the opencv repository pointed out that the problem I was ha
 FROM nvidia/cuda:9.0-cudnn7-runtime
 The runtime version usually doesn't contain the SDK files, the fix was to change -runtime for -develop.
 
+### ImportError: libGL.so.1: cannot open shared object file: No such file or directory
+
+> https://stackoverflow.com/questions/55313610/importerror-libgl-so-1-cannot-open-shared-object-file-no-such-file-or-directo
+
+```docker
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+````
