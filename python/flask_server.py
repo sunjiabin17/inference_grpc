@@ -65,7 +65,7 @@ if __name__ == '__main__':
             logging.StreamHandler(),
         ]
     )
-
+    logging.info("grpc server address: " + grpc_address);
     # app.register_blueprint(bp_server, url_prefix='')
     t1 = threading.Thread(target=run_server, args=(http_port,))
     t1.start()
