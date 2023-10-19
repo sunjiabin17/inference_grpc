@@ -1,6 +1,6 @@
 # run docker build --network=host -t ubuntu-grpc-cpp-server .
 # FROM ubuntu:20.04
-FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04
+FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
 WORKDIR /grpc_service
 ENV WORKDIR=/grpc_service
 
@@ -15,18 +15,18 @@ ENV TENSORRT_INSTALL_DIR=${WORKDIR}/libs/TensorRT-8.6.1.6
 # RUN mkdir -p ${GRPC_INSTALL_DIR} && mkdir -p ${GRPC_DIR} && mkdir -p ${OPENCV_DIR} && mkdir -p ${OPENCV_INSTALL_DIR}
 
 # COPY src include scripts models protos test CMakeLists.txt ./
-COPY src ./src
-COPY include ./include
-COPY scripts ./scripts
-COPY models ./models
-COPY protos ./protos
-COPY test ./test
-COPY CMakeLists.txt ./CMakeLists.txt
+# COPY src ./src
+# COPY include ./include
+# COPY scripts ./scripts
+# COPY models ./models
+# COPY protos ./protos
+# COPY test ./test
+# COPY CMakeLists.txt ./CMakeLists.txt
 
-# 直接拷贝本地文件，不下载编译
-COPY libs/grpc_lib ${GRPC_INSTALL_DIR}
-COPY libs/opencv_lib ${OPENCV_INSTALL_DIR}
-COPY libs/TensorRT-8.6.1.6 ${TENSORRT_INSTALL_DIR}
+# # 直接拷贝本地文件，不下载编译
+# COPY libs/grpc_lib ${GRPC_INSTALL_DIR}
+# COPY libs/opencv_lib ${OPENCV_INSTALL_DIR}
+# COPY libs/TensorRT-8.6.1.6 ${TENSORRT_INSTALL_DIR}
 
 RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
 RUN apt update && apt install -y cmake build-essential autoconf libtool pkg-config git wget clang libc++-dev 
