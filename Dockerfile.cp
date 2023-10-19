@@ -14,7 +14,7 @@ COPY test ./test
 
 RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
 RUN apt update && apt install -y cmake build-essential autoconf libtool pkg-config git wget clang libc++-dev libprotobuf-dev protobuf-compiler libpng-dev
-
+RUN apt update && apt-get install ffmpeg libsm6 libxext6 -y
 
 RUN wget https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-latest-Linux-x86_64.sh
 RUN bash Miniconda3-latest-Linux-x86_64.sh -b -p /miniconda3
@@ -33,4 +33,4 @@ RUN /bin/bash -c ". activate py39 && conda install -y opencv grpcio grpcio-tools
 
 
 
-ENV PYTHONPATH ${PYTHONPATH}:`pwd`/protos:`pwd`
+ENV PYTHONPATH ${PYTHONPATH}:${WORKDIR}/protos:${WORKDIR}
