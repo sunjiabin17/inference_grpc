@@ -6,7 +6,7 @@ project(InferGRPC CXX)
 
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/libs/grpc_lib)
 # set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/libs/TensorRT_lib)
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/libs/TensorRT-8.6.1.6)
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/libs/tensorrt_lib)
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/libs/opencv_lib)
 MESSAGE(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 # 设置C++标准
@@ -62,7 +62,7 @@ if(BUILD_TRT)
     # ------------------
     # 添加cuda依赖、tensorrt依赖
     find_package(CUDA REQUIRED)
-    set(TENSORRT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/TensorRT-8.6.1.6)
+    set(TENSORRT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/tensorrt_lib)
     set(TENSORRT_INCLUDE_DIRS ${TENSORRT_DIR}/include)
 
     set(CUDA_TOOLKIT_DIR "/usr/local/cuda")
