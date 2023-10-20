@@ -15,22 +15,22 @@ ENV TENSORRT_INSTALL_DIR=${WORKDIR}/libs/TensorRT-8.6.1.6
 # RUN mkdir -p ${GRPC_INSTALL_DIR} && mkdir -p ${GRPC_DIR} && mkdir -p ${OPENCV_DIR} && mkdir -p ${OPENCV_INSTALL_DIR}
 
 # COPY src include scripts models protos test CMakeLists.txt ./
-# COPY src ./src
-# COPY include ./include
-# COPY scripts ./scripts
-# COPY models ./models
-# COPY protos ./protos
-# COPY test ./test
-# COPY CMakeLists.txt ./CMakeLists.txt
+COPY src ./src
+COPY include ./include
+COPY scripts ./scripts
+COPY models ./models
+COPY protos ./protos
+COPY test ./test
+COPY CMakeLists.txt ./CMakeLists.txt
 
-# # 直接拷贝本地文件，不下载编译
-# COPY libs/grpc_lib ${GRPC_INSTALL_DIR}
-# COPY libs/opencv_lib ${OPENCV_INSTALL_DIR}
-# COPY libs/TensorRT-8.6.1.6 ${TENSORRT_INSTALL_DIR}
+# 直接拷贝本地文件，不下载编译
+COPY libs/grpc_lib ${GRPC_INSTALL_DIR}
+COPY libs/opencv_lib ${OPENCV_INSTALL_DIR}
+COPY libs/TensorRT-8.6.1.6 ${TENSORRT_INSTALL_DIR}
 
 RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
-RUN apt update && apt install -y cmake build-essential autoconf libtool pkg-config git wget clang libc++-dev 
-# libprotobuf-dev protobuf-compiler libpng-dev
+RUN apt update && apt install -y cmake build-essential autoconf libtool pkg-config git wget clang libc++-dev libpng16-16
+# libprotobuf-dev protobuf-compiler libpng-devapt-get install -y libpng16-16
 
 
 # host proxy address
@@ -38,12 +38,18 @@ RUN apt update && apt install -y cmake build-essential autoconf libtool pkg-conf
 
 ENV LD_LIBRARY_PATH=${GRPC_INSTALL_DIR}/lib:${OPENCV_INSTALL_DIR}/lib:${TENSORRT_INSTALL_DIR}/lib:${LD_LIBRARY_PATH}
 
-# RUN /bin/bash -c "cd ${WORKDIR} && \
-#     mkdir -p build && \
-#     pushd build && \
-#     cmake -DBUILD_TRT=1 -DCMAKE_INSTALL_PREFIX=. .. && \
-#     make && \
-#     popd"
+RUN /bin/bash -c "cd ${WORKDIR} && \
+    mkdir -p build && \
+    pushd build && \
+    cmake -DBUILD_TRT=1 -DCMAKE_INSTALL_PREFIX=. .. && \
+    make && \
+    popd"
+
+WORKDIR /grpc_service/build
+CMD ./grpc_server --port=50051 \
+    --onnx_file=/grpc_service/models/densenet_onnx/model.onnx \
+    --label_file=/grpc_service/models/densenet_onnx/densenet_labels.txt \
+    --engine_file=/grpc_service/models/densenet_onnx/densenet.engine
 
 
 # RUN git clone --recurse-submodules -b v1.58.0 --depth 1 --shallow-submodules \

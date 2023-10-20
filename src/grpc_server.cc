@@ -149,6 +149,13 @@ int main(int argc, char** argv) {
     mode = result["mode"].as<std::string>();
     max_batchsize = result["max_batchsize"].as<unsigned int>();
 
+    LOG_INFO("port: " << port);
+    LOG_INFO("onnx_file: " << onnx_file);
+    LOG_INFO("label_file: " << label_file);
+    LOG_INFO("engine_file: " << engine_file);
+    LOG_INFO("mode: " << mode);
+    LOG_INFO("max_batchsize: " << max_batchsize);
+
     RunServer(port, mode, max_batchsize, onnx_file, engine_file, label_file);
     return 0;
 }
