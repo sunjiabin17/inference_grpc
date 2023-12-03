@@ -74,6 +74,11 @@
         "typeinfo": "cpp",
         "valarray": "cpp",
         "variant": "cpp",
-        "bit": "cpp"
+        "bit": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "numbers": "cpp",
+        "ranges": "cpp",
+        "span": "cpp"
     }
 }

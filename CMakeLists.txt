@@ -158,3 +158,17 @@ list (SORT _variableNames)
 foreach (_variableName ${_variableNames})
     message(STATUS "${_variableName}=${${_variableName}}")
 endforeach()
+
+
+
+add_executable(test_onnx ${CMAKE_CURRENT_SOURCE_DIR}/test/img_classify_onnx.cc)
+target_link_libraries(test_onnx ${OpenCV_LIBS} ${CUDA_LIBRARIES} lib_helper lib_base64 lib_cxxopts)
+
+set(ONNX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/onnxruntime-linux-x64-1.16.3)
+# include_directories(${ONNX_DIR}/include)
+target_include_directories(test_onnx PRIVATE ${ONNX_DIR}/include)
+target_link_libraries(test_onnx ${ONNX_DIR}/lib/libonnxruntime.so)
+
+
+add_executable(test_trt ${CMAKE_CURRENT_SOURCE_DIR}/test/img_classify_tensorrt.cc)
+target_link_libraries(test_trt ${OpenCV_LIBS} ${CUDA_LIBRARIES} lib_helper lib_base64 lib_cxxopts nvinfer nvonnxparser nvparsers)
